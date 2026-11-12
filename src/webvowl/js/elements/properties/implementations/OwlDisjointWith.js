@@ -1,0 +1,60 @@
+import Graph from "../../../graph"
+import CenteringTextElement from "../../../util/CenteringTextElement"
+import BaseProperty from "../BaseProperty"
+
+export default class OwlDisjointWith extends BaseProperty {
+    /**
+     * @param {Graph} graph
+     */
+    constructor(graph) {
+        super(graph)
+
+        this._label = "Disjoint With"
+        this.linkType = "dashed"
+        this.styleClass = "disjointwith"
+        this.type = "owl:disjointWith"
+        this.shapeElement
+    }
+
+    get label() {
+        return this._label
+    }
+
+    // Disallow overwriting the label
+    set label(p) {
+        // console.warn("Attempting to override disjoint label")
+        return
+    }
+
+    /**
+     * @param {d3.Selection<any, any, null, undefined>} labelContainer
+     */
+    drawLabel(labelContainer) {
+        this.shapeElement = this.addRect(labelContainer)
+
+        labelContainer
+            .append("circle")
+            .classed("symbol", true)
+            .classed("fineline", true)
+            .classed("embedded", true)
+            .attr("cx", -12.5)
+            .attr("r", 10)
+
+        labelContainer
+            .append("circle")
+            .classed("symbol", true)
+            .classed("fineline", true)
+            .classed("embedded", true)
+            .attr("cx", 12.5)
+            .attr("r", 10)
+
+        const textElement = new CenteringTextElement(
+            labelContainer,
+            this.backgroundColor,
+        )
+        if (!this.graph.options.compactNotation) {
+            textElement.addSubText("disjoint")
+        }
+        textElement.translation(0, 20)
+    }
+}

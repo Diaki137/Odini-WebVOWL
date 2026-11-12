@@ -1,0 +1,14 @@
+steps:
+  # build the container image with both tags
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build', '.', 
+      '-t', 'gcr.io/$PROJECT_ID/webvowl-odini:latest',
+      '-t', 'gcr.io/$PROJECT_ID/webvowl-odini:$_IMAGE_TAG'
+    ]
+  # push the container image with both tags
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'gcr.io/$PROJECT_ID/webvowl-odini:latest']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'gcr.io/$PROJECT_ID/webvowl-odini:$_IMAGE_TAG']

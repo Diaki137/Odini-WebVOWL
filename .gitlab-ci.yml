@@ -1,0 +1,33 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE_TAG: $CI_COMMIT_SHA
+  VAR_KEY: TF_VAR_webvowl_service_version
+
+build:
+  stage: build
+  image: google/cloud-sdk
+  only:
+    - master
+  services:
+    - docker:dind
+  script:
+    - echo $GCP_SERVICE_KEY > gcloud-service-key.json
+    - gcloud auth activate-service-account --key-file gcloud-service-key.json
+    - gcloud config set project $GCP_PROJECT_ID
+    - gcloud builds submit . --config=cloudbuild.yml --substitutions=_IMAGE_TAG=$IMAGE_TAG
+
+deploy:
+  stage: deploy
+  only:
+    - master
+  script:
+    - |
+      curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+      --header "Content-Type: application/json" \
+      --data "{ \"ref\": \"main\", \"variables\": [{\"key\": \"$VAR_KEY\", \"value\": \"$IMAGE_TAG\"}] }" \
+      "https://gitlab.com/api/v4/projects/54444474/pipeline"
+  needs:
+    - build
